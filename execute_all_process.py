@@ -3,7 +3,7 @@ from process_datasets.process_data_apic_controller import execute_function
 from decorators.decorators import decorator_os
 
 # ======================================
-#  This environment execute all process
+#  This environment, execute all process
 #   Author : Bryan Alonso
 #   Position : Support Engineer
 # ======================================

@@ -47,8 +47,8 @@ def get_data_inventory():
     return result_list
 
 
-def get_data_interface(id):
-    list_response = APIC_OBJECT.get_data_aci("class/topology/pod-1/node-"+id+"/l1PhysIf.json?rsp-subtree=children&rsp-subtree-class=ethpmPhysIf&order-by=l1PhysIf.monPolDn|asc&page=0&page-size=100")
+def get_data_interface(id_node):
+    list_response = APIC_OBJECT.get_data_aci("class/topology/pod-1/node-" + id_node + "/l1PhysIf.json?rsp-subtree=children&rsp-subtree-class=ethpmPhysIf&order-by=l1PhysIf.monPolDn|asc&page=0&page-size=100")
     result_list = list()
     for index in list_response:
         result_list.append([
@@ -92,5 +92,30 @@ def get_data_interface(id):
             index['l1PhysIf']['attributes']['switchingSt'],
             index['l1PhysIf']['attributes']['trunkLog'],
             index['l1PhysIf']['attributes']['usage']
+        ])
+    return result_list
+
+
+def get_alarms_aci():
+    # https://sandboxapicdc.cisco.com/api/node/class/topology/pod-1/faultSummary.json?query-target-filter=and(not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc&page=0&page-size=15
+    list_response = APIC_OBJECT.get_data_aci("class/topology/pod-1/faultSummary.json?query-target-filter=and(not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc&page=0&page-size=15")
+    result_list = list()
+    for index in list_response:
+        result_list.append([
+            index['faultSummary']['attributes']['cause'],
+            index['faultSummary']['attributes']['childAction'],
+            index['faultSummary']['attributes']['code'],
+            index['faultSummary']['attributes']['count'],
+            index['faultSummary']['attributes']['descr'],
+            index['faultSummary']['attributes']['dn'],
+            index['faultSummary']['attributes']['domain'],
+            index['faultSummary']['attributes']['nonAcked'],
+            index['faultSummary']['attributes']['nonDelegated'],
+            index['faultSummary']['attributes']['nonDelegatedAndNonAcked'],
+            index['faultSummary']['attributes']['rule'],
+            index['faultSummary']['attributes']['severity'],
+            index['faultSummary']['attributes']['status'],
+            index['faultSummary']['attributes']['subject'],
+            index['faultSummary']['attributes']['type']
         ])
     return result_list

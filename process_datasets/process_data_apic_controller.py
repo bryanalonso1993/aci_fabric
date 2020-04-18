@@ -7,14 +7,18 @@ import os
 # list_files
 LIST_FILES = [
     "/var/lib/mysql/DATASETS/inventory.csv",
-    "/var/lib/mysql/DATASETS/interfaces.csv"
+    "/var/lib/mysql/DATASETS/interfaces.csv",
+    "/var/lib/mysql/DATASETS/alarms.csv"
 ]
+
+UID_MYSQL = 123
+GUID_MYSQL = 134
 
 
 def process_data_inventory(file_csv, table):
     if not os.path.isfile(file_csv):
         os.mknod(file_csv)
-        os.chown(file_csv, 123, 134)
+        os.chown(file_csv, UID_MYSQL, GUID_MYSQL)
     data_rows = get_data_inventory()
     with open(file_csv, 'w', newline='') as csv_file:
         spam_writer = csv.writer(csv_file, delimiter='|')
@@ -32,7 +36,7 @@ def process_data_inventory(file_csv, table):
 def process_data_interfaces(file_csv, id_controller, table):
     if not os.path.isfile(file_csv):
         os.mknod(file_csv)
-        os.chown(file_csv, 123, 134)
+        os.chown(file_csv, UID_MYSQL, GUID_MYSQL)
     data_rows = get_data_interface(id_controller)
     for index in data_rows:
         index.append(id_controller)
@@ -62,9 +66,27 @@ def response_available_id():
     return list_id_controller
 
 
+def process_data_alarms(file_csv, table):
+    if not os.path.isfile(file_csv):
+        os.mknod(file_csv)
+        os.chown(file_csv, UID_MYSQL, GUID_MYSQL)
+    data_rows = get_alarms_aci()
+    with open(file_csv, 'w', newline='') as csvfile:
+        spamwriter = csv.writer(csvfile, delimiter='|')
+        for row in data_rows:
+            spamwriter.writerow(row)
+    sql_execute = "LOAD DATA INFILE \'{}\' INTO TABLE {} FIELDS TERMINATED BY '|' LINES TERMINATED BY \'\\n\' (" \
+                  "`cause`, `childAction`, `code`, `count`, `descr`, `dn`, `domain`, `nonAcked`, `nonDelegated`," \
+                  " `nonDelegatedAndNonAcked`, `rule`, `severity`, `status`, `subject`, `type`)".format(file_csv, table)
+    queries_data_sql(sql_execute)
+    os.remove(file_csv)
+
+
 def execute_function():
     # call inventory
     process_data_inventory(LIST_FILES[0], "aci_inventory")
     # call interfaces id
     for index in response_available_id():
         process_data_interfaces(LIST_FILES[1], str(index), "aci_interfaces")
+    # call alarms
+    process_data_alarms(LIST_FILES[2], "aci_alarms_topology")
