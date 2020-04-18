@@ -1,0 +1,3 @@
+off,0.0.0.0,,apic,,no,topology/pod-1/node-102,,undiscovered,102,2020-04-16T20:41:11.498+00:00,local,2020-04-16T20:43:17.735+00:00,,uni/fabric/monfab-default,leaf-2,,unspecified,leaf,ABC,,0,"Cisco Systems, Inc",
+on,10.0.24.64,,apic,,no,topology/pod-1/node-101,,active,101,2020-04-16T11:52:42.046+00:00,local,2020-04-16T11:53:09.257+00:00,N9K-C9396PX,uni/fabric/monfab-default,leaf-1,,unspecified,leaf,TEP-1-101,,0,"Cisco Systems, Inc",
+on,10.0.24.65,,apic,,no,topology/pod-1/node-201,,active,201,2020-04-16T11:53:47.877+00:00,local,2020-04-16T11:54:09.274+00:00,N9K-C9508,uni/fabric/monfab-default,spine-1,,unspecified,spine,TEP-1-103,,0,"Cisco Systems, Inc",
