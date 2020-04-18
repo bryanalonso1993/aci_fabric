@@ -21,7 +21,7 @@ class ApiRestAci(object):
 
     def get_data_aci(self, data_method):
         response_data = requests.get(self.url+data_method,
-                                     cookies={'APIC-cookie':self.token},
+                                     cookies={'APIC-cookie': self.token},
                                      headers=self.header,
                                      verify=False)
         if response_data.status_code == 200:
@@ -30,10 +30,37 @@ class ApiRestAci(object):
             return "Bad Response ACI ... {} ... error ... {}".format(response_data.status_code, response_data.json())
 
     def post_data_aci(self, data_method):
-        pass
+        response_data = requests.post(self.url+data_method,
+                                      cookies={'APIC-cookie': self.token},
+                                      headers=self.header,
+                                      verify=False
+                                      )
+        if response_data.status_code == 200:
+            print("succesfull operation : {}, response server : {}".format(response_data.status_code,
+                                                                           response_data.json()))
+        else:
+            return "Bad Operation ACI ...{}".format(response_data.status_code)
 
     def put_data_aci(self, data_method):
-        pass
+        response_data = requests.put(self.url+data_method,
+                                     cookies={'APIC-cookie': self.token},
+                                     headers=self.header,
+                                     verify=False
+                                     )
+        if response_data.status_code == 200:
+            print("succesfull operation : {}, response server : {}".format(response_data.status_code,
+                                                                           response_data.json()))
+        else:
+            return "Bad Operation ACI ...{}".format(response_data.status_code)
     
     def delete_data_aci(self, data_method):
-        pass
+        response_data = requests.put(self.url+data_method,
+                                     cookies={'APIC-cookie': self.token},
+                                     headers=self.header,
+                                     verify=False
+                                     )
+        if response_data.status_code == 200:
+            print("succesfull operation : {}, response server : {}".format(response_data.status_code,
+                                                                           response_data.json()))
+        else:
+            return "Bad Operation ACI ...{}".format(response_data.status_code)

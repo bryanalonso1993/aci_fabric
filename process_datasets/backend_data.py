@@ -29,3 +29,10 @@ def queries_data_sql(*args):
         except pymysql.err.ProgrammingError as err:
             return "Error in execute sql process {}".format(err.args)
     cnx.close()
+
+
+def response_data_query(sql):
+    cnx = connection_database()
+    cnx_cursor = cnx.cursor()
+    cnx_cursor.execute(sql)
+    return cnx_cursor.fetchall()
