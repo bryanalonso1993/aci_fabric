@@ -10,7 +10,7 @@ class ApiRestAci(object):
         self.password = password
         self.header = {'content-type': 'application/json'}
         self.url = "https://"+self.ip+"/api/node/"
-        self.token = requests.post("https://"+self.ip+"/api/aaaLogin.json",data=json.dumps({
+        self.token = requests.post("https://"+self.ip+"/api/aaaLogin.json", data=json.dumps({
                 "aaaUser": {
                     "attributes": {
                         "name": self.username,

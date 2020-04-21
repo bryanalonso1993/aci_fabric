@@ -48,7 +48,7 @@ def get_data_inventory():
 
 
 def get_data_interface(id_node):
-    list_response = APIC_OBJECT.get_data_aci("class/topology/pod-1/node-" + id_node + "/l1PhysIf.json?rsp-subtree=children&rsp-subtree-class=ethpmPhysIf&order-by=l1PhysIf.monPolDn|asc&page=0&page-size=100")
+    list_response = APIC_OBJECT.get_data_aci("class/topology/pod-1/node-" + id_node + "/l1PhysIf.json?rsp-subtree=children&rsp-subtree-class=ethpmPhysIf&order-by=l1PhysIf.monPolDn|asc")
     result_list = list()
     for index in list_response:
         result_list.append([
@@ -96,9 +96,12 @@ def get_data_interface(id_node):
     return result_list
 
 
-def get_alarms_aci():
-    # https://sandboxapicdc.cisco.com/api/node/class/topology/pod-1/faultSummary.json?query-target-filter=and(not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc&page=0&page-size=15
-    list_response = APIC_OBJECT.get_data_aci("class/topology/pod-1/faultSummary.json?query-target-filter=and(not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc&page=0&page-size=15")
+def get_alarms_aci(method):
+    # https://sandboxapicdc.cisco.com/api/node/class/topology/pod-1/faultSummary.json?query-target-filter=and
+    # (not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc&page=0&page-size=15
+    #  https://sandboxapicdc.cisco.com/api/node/class/faultSummary.json?query-target-filter=
+    #  and(not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc
+    list_response = APIC_OBJECT.get_data_aci(method)
     result_list = list()
     for index in list_response:
         result_list.append([
@@ -119,3 +122,4 @@ def get_alarms_aci():
             index['faultSummary']['attributes']['type']
         ])
     return result_list
+

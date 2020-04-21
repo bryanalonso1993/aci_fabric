@@ -6,9 +6,9 @@ import os
 
 # list_files
 LIST_FILES = [
-    "/var/lib/mysql/DATASETS/inventory.csv",
-    "/var/lib/mysql/DATASETS/interfaces.csv",
-    "/var/lib/mysql/DATASETS/alarms.csv"
+    "/var/lib/mysql/"+DATABASE+"/inventory.csv",
+    "/var/lib/mysql/"+DATABASE+"/interfaces.csv",
+    "/var/lib/mysql/"+DATABASE+"/alarms.csv"
 ]
 
 UID_MYSQL = 123
@@ -28,7 +28,6 @@ def process_data_inventory(file_csv, table):
                   "(adSt, address, annotation, apicType, childAction, delayedHeartbeat, dn, extMngdBy, fabricSt, id," \
                   " lastStateModTs, lcOwn, modTs, model, monPolDn, name, nameAlias, nodeType, role, serial, status," \
                   " uid, vendor, version)".format(file_csv, table)
-    print("Execute query", sql_execute)
     queries_data_sql(sql_execute)
     os.remove(file_csv)
 
@@ -51,11 +50,11 @@ def process_data_interfaces(file_csv, id_controller, table):
                   " `linkLog`, `mdix`, `medium`, `modTs`, `mode`, `monPolDn`, `mtu`, `name`, `pathSDescr`, `portT`," \
                   " `prioFlowCtrl`, `reflectiveRelayEn`, `routerMac`, `snmpTrapSt`, `spanMode`, `speed`, `status`," \
                   " `switchingSt`,`trunkLog`, `usage`, `idParent`)".format(file_csv, table)
-    # print("execute query_sql ...", sql_execute)
     queries_data_sql(sql_execute)
     os.remove(file_csv)
 
 
+# search id in aci_inventory
 def response_available_id():
     tuple_id = response_data_query("SELECT distinct(id) FROM `aci_inventory`")
     i = 0
@@ -66,11 +65,11 @@ def response_available_id():
     return list_id_controller
 
 
-def process_data_alarms(file_csv, table):
+def process_data_alarms(file_csv, table, method):
     if not os.path.isfile(file_csv):
         os.mknod(file_csv)
         os.chown(file_csv, UID_MYSQL, GUID_MYSQL)
-    data_rows = get_alarms_aci()
+    data_rows = get_alarms_aci(method)
     with open(file_csv, 'w', newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter='|')
         for row in data_rows:
@@ -89,4 +88,5 @@ def execute_function():
     for index in response_available_id():
         process_data_interfaces(LIST_FILES[1], str(index), "aci_interfaces")
     # call alarms
-    process_data_alarms(LIST_FILES[2], "aci_alarms_topology")
+    process_data_alarms(LIST_FILES[2], "aci_alarms_topology", "class/topology/pod-1/faultSummary.json?query-target-filter=and(not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc")
+    process_data_alarms(LIST_FILES[2], "aci_alarms_topology", "class/faultSummary.json?query-target-filter=and(not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc")
