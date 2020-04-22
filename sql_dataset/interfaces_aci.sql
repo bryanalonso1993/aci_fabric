@@ -1,5 +1,4 @@
 -- create table interfaces aci - fabric - pendiente modificar los campos
-
 CREATE table `aci_interfaces` (
     `unique` INT NOT NULL AUTO_INCREMENT,
     `adminSt` VARCHAR(20) DEFAULT NULL,

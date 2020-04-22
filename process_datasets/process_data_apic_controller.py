@@ -4,21 +4,9 @@ from process_datasets.backend_data import *
 import csv
 import os
 
-# list_files
-LIST_FILES = [
-    "/var/lib/mysql/"+DATABASE+"/inventory.csv",
-    "/var/lib/mysql/"+DATABASE+"/interfaces.csv",
-    "/var/lib/mysql/"+DATABASE+"/alarms.csv"
-]
 
-UID_MYSQL = 123
-GUID_MYSQL = 134
-
-
+# process data inventory
 def process_data_inventory(file_csv, table):
-    if not os.path.isfile(file_csv):
-        os.mknod(file_csv)
-        os.chown(file_csv, UID_MYSQL, GUID_MYSQL)
     data_rows = get_data_inventory()
     with open(file_csv, 'w', newline='') as csv_file:
         spam_writer = csv.writer(csv_file, delimiter='|')
@@ -29,13 +17,10 @@ def process_data_inventory(file_csv, table):
                   " lastStateModTs, lcOwn, modTs, model, monPolDn, name, nameAlias, nodeType, role, serial, status," \
                   " uid, vendor, version)".format(file_csv, table)
     queries_data_sql(sql_execute)
-    os.remove(file_csv)
 
 
+# process interfaces all nods
 def process_data_interfaces(file_csv, id_controller, table):
-    if not os.path.isfile(file_csv):
-        os.mknod(file_csv)
-        os.chown(file_csv, UID_MYSQL, GUID_MYSQL)
     data_rows = get_data_interface(id_controller)
     for index in data_rows:
         index.append(id_controller)
@@ -44,14 +29,35 @@ def process_data_interfaces(file_csv, id_controller, table):
         for row in data_rows:
             spam_writer.writerow(row)
     sql_execute = "LOAD DATA INFILE \'{}\' INTO TABLE {} FIELDS TERMINATED BY '|' LINES TERMINATED BY \'\\n\' " \
-                  "(`adminSt`, `autoNeg`, `brkoutMap`, `bw`, `childAction`, `delay`, `descr`, `dn`," \
+                  " (`adminSt`, `autoNeg`, `brkoutMap`, `bw`, `childAction`, `delay`, `descr`, `dn`," \
                   " `dot1qEtherType`, `ethpmCfgFailedBmp`,`ethpmCfgFailedTs`, `ethpmCfgState`, `fcotChannelNumber`," \
                   " `fecMode`, `id`, `inhBw`, `isReflectiveRelayCfgSupported`, `layer`, `lcOwn`, `linkDebounce`," \
                   " `linkLog`, `mdix`, `medium`, `modTs`, `mode`, `monPolDn`, `mtu`, `name`, `pathSDescr`, `portT`," \
                   " `prioFlowCtrl`, `reflectiveRelayEn`, `routerMac`, `snmpTrapSt`, `spanMode`, `speed`, `status`," \
-                  " `switchingSt`,`trunkLog`, `usage`, `idParent`)".format(file_csv, table)
+                  " `switchingSt`,`trunkLog`, `usage`, `idParent` )".format(file_csv, table)
     queries_data_sql(sql_execute)
-    os.remove(file_csv)
+
+
+# view status interfaces ...
+def process_data_status_interfaces(file_csv, id_controller, table):
+    data_rows = get_status_interfaces(id_controller)
+    for index in data_rows:
+        index.append(id_controller)
+    with open(file_csv, 'w', newline='') as csv_file:
+        spam_writer = csv.writer(csv_file, delimiter='|')
+        for row in data_rows:
+            spam_writer.writerow(row)
+    sql_execute = "LOAD DATA INFILE \'{}\' INTO TABLE {} FIELDS TERMINATED BY '|' LINES TERMINATED BY \'\\n\' " \
+                  " (`accessVlan`, `allowedVlans`, `backplaneMac`, `bundleBupId`, `bundleIndex`, `cfgAccessVlan`, " \
+                  " `cfgNativeVlan`, `childAction`, `currErrIndex`, `diags`, `encap`, `errDisTimerRunning`, " \
+                  " `errVlanStatusHt`, `errVlans`, `hwBdId`, `hwResourceId`, `intfT`, `iod`, `lastErrors`, " \
+                  " `lastLinkStChg`, `media`, `modTs`,`monPolDn`,`nativeVlan`, `numOfSI`,`operBitset`, `operDceMode`," \
+                  " `operDuplex`, `operEEERxWkTime`, `operEEEState`, `operEEETxWkTime`, `operErrDisQual`," \
+                  " `operFecMode`, `operFlowCtrl`, `operMdix`, `operMode`, `operModeDetail`,`operPhyEnSt`," \
+                  " `operRouterMac`, `operSpeed`, `operSt`, `operStQual`,`operStQualCode`, `operVlans`,`osSum`, " \
+                  " `portCfgWaitFlags`, `primaryVlan`, `resetCtr`, `rn`, `siList`, `status`, `txT`, `usage`," \
+                  " `userCfgdFlags`, `vdcId`, `idParent`)".format(file_csv, table)
+    queries_data_sql(sql_execute)
 
 
 # search id in aci_inventory
@@ -66,27 +72,41 @@ def response_available_id():
 
 
 def process_data_alarms(file_csv, table, method):
-    if not os.path.isfile(file_csv):
-        os.mknod(file_csv)
-        os.chown(file_csv, UID_MYSQL, GUID_MYSQL)
     data_rows = get_alarms_aci(method)
-    with open(file_csv, 'w', newline='') as csvfile:
-        spamwriter = csv.writer(csvfile, delimiter='|')
+    with open(file_csv, 'w', newline='') as csv_file:
+        spam_writer = csv.writer(csv_file, delimiter='|')
         for row in data_rows:
-            spamwriter.writerow(row)
+            spam_writer.writerow(row)
     sql_execute = "LOAD DATA INFILE \'{}\' INTO TABLE {} FIELDS TERMINATED BY '|' LINES TERMINATED BY \'\\n\' (" \
                   "`cause`, `childAction`, `code`, `count`, `descr`, `dn`, `domain`, `nonAcked`, `nonDelegated`," \
                   " `nonDelegatedAndNonAcked`, `rule`, `severity`, `status`, `subject`, `type`)".format(file_csv, table)
     queries_data_sql(sql_execute)
-    os.remove(file_csv)
+
+
+def create_files_csv(*args):
+    for index in args:
+        if not os.path.isfile(index):
+            os.mknod(index)
+        os.chown(index, UID_MYSQL, GUID_MYSQL)
+
+
+def remove_files_csv(*args):
+    for index in args:
+        os.remove(index)
 
 
 def execute_function():
+    # create files
+    create_files_csv(*LIST_FILES)
     # call inventory
     process_data_inventory(LIST_FILES[0], "aci_inventory")
-    # call interfaces id
-    for index in response_available_id():
+    # call interfaces ids
+    # id_available = response_available_id()
+    id_available = [101, 102, 201]
+    for index in id_available:
         process_data_interfaces(LIST_FILES[1], str(index), "aci_interfaces")
-    # call alarms
+        process_data_status_interfaces(LIST_FILES[3], str(index), "aci_status_interfaces")
+    # call alarms09
     process_data_alarms(LIST_FILES[2], "aci_alarms_topology", "class/topology/pod-1/faultSummary.json?query-target-filter=and(not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc")
     process_data_alarms(LIST_FILES[2], "aci_alarms_topology", "class/faultSummary.json?query-target-filter=and(not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc")
+    remove_files_csv(*LIST_FILES)
