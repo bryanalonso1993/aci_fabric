@@ -26,6 +26,7 @@ LIST_FILES = [
     "/var/lib/mysql/"+DATABASE+"/inventory.csv",
     "/var/lib/mysql/"+DATABASE+"/interfaces.csv",
     "/var/lib/mysql/"+DATABASE+"/alarms.csv",
-    "/var/lib/mysql/"+DATABASE+"/status_interfaces.csv"
+    "/var/lib/mysql/"+DATABASE+"/status_interfaces.csv",
+    "/var/lib/mysql/"+DATABASE+"/status_partitions.csv"
 ]
 

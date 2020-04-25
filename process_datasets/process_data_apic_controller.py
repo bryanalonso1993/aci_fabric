@@ -19,6 +19,19 @@ def process_data_inventory(file_csv, table):
     queries_data_sql(sql_execute)
 
 
+def process_data_partitions_controller(file_csv, table):
+    data_rows = get_data_partitions_controller()
+    with open(file_csv, 'w', newline='') as csv_file:
+        spam_writer = csv.writer(csv_file, delimiter='|')
+        for row in data_rows:
+            spam_writer.writerow(row)
+    sql_execute = "LOAD DATA INFILE \'{}\' INTO TABLE {} FIELDS TERMINATED BY '|' LINES TERMINATED BY \'\\n\' " \
+                  "(`available`, `blocks`, `capUtilized`, `childAction`, `device`, `dn`, `failReason`, " \
+                  "`fileSystem`, `firmwareVersion`, `lcOwn`, `mediaWearout`, `modTs`, `model`, `monPolDn`, `mount`," \
+                  " `name`, `nameAlias`, `operSt`, `serial`, `status`, `used`)".format(file_csv, table)
+    queries_data_sql(sql_execute)
+
+
 # process interfaces all nods
 def process_data_interfaces(file_csv, id_controller, table):
     data_rows = get_data_interface(id_controller)
@@ -48,7 +61,7 @@ def process_data_status_interfaces(file_csv, id_controller, table):
         for row in data_rows:
             spam_writer.writerow(row)
     sql_execute = "LOAD DATA INFILE \'{}\' INTO TABLE {} FIELDS TERMINATED BY '|' LINES TERMINATED BY \'\\n\' " \
-                  " (`accessVlan`, `allowedVlans`, `backplaneMac`, `bundleBupId`, `bundleIndex`, `cfgAccessVlan`, " \
+                  " (`id`, `accessVlan`, `allowedVlans`, `backplaneMac`, `bundleBupId`, `bundleIndex`, `cfgAccessVlan`," \
                   " `cfgNativeVlan`, `childAction`, `currErrIndex`, `diags`, `encap`, `errDisTimerRunning`, " \
                   " `errVlanStatusHt`, `errVlans`, `hwBdId`, `hwResourceId`, `intfT`, `iod`, `lastErrors`, " \
                   " `lastLinkStChg`, `media`, `modTs`,`monPolDn`,`nativeVlan`, `numOfSI`,`operBitset`, `operDceMode`," \
@@ -71,6 +84,7 @@ def response_available_id():
     return list_id_controller
 
 
+# process alarms ACI
 def process_data_alarms(file_csv, table, method):
     data_rows = get_alarms_aci(method)
     with open(file_csv, 'w', newline='') as csv_file:
@@ -83,6 +97,7 @@ def process_data_alarms(file_csv, table, method):
     queries_data_sql(sql_execute)
 
 
+# create files csv
 def create_files_csv(*args):
     for index in args:
         if not os.path.isfile(index):
@@ -90,6 +105,7 @@ def create_files_csv(*args):
         os.chown(index, UID_MYSQL, GUID_MYSQL)
 
 
+# remove files csv
 def remove_files_csv(*args):
     for index in args:
         os.remove(index)
@@ -106,7 +122,7 @@ def execute_function():
     for index in id_available:
         process_data_interfaces(LIST_FILES[1], str(index), "aci_interfaces")
         process_data_status_interfaces(LIST_FILES[3], str(index), "aci_status_interfaces")
-    # call alarms09
     process_data_alarms(LIST_FILES[2], "aci_alarms_topology", "class/topology/pod-1/faultSummary.json?query-target-filter=and(not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc")
     process_data_alarms(LIST_FILES[2], "aci_alarms_topology", "class/faultSummary.json?query-target-filter=and(not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc")
+    process_data_partitions_controller(LIST_FILES[4], "aci_partitions_controller")
     remove_files_csv(*LIST_FILES)

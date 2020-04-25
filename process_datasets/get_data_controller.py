@@ -10,7 +10,7 @@ from main_apic import *
 #
 # ================================================================
 
-# constant
+# instance object apic controller
 APIC_OBJECT = ApiRestAci(IP_CONTROLLER, USERNAME, PASSWORD)
 
 
@@ -50,8 +50,8 @@ def get_data_inventory():
 def get_alarms_aci(method):
     # https://sandboxapicdc.cisco.com/api/node/class/topology/pod-1/faultSummary.json?query-target-filter=and
     # (not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc&page=0&page-size=15
-    #  https://sandboxapicdc.cisco.com/api/node/class/faultSummary.json?query-target-filter=
-    #  and(not(wcard(faultSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc
+    #  https://sandboxapicdc.cisco.com/api/node/class/faultSummary.json?query-target-filter=and(not(wcard(faul
+    #  tSummary.dn,%22__ui_%22)),and())&order-by=faultSummary.severity|desc
     list_response = APIC_OBJECT.get_data_aci(method)
     result_list = list()
     for index in list_response:
@@ -71,6 +71,38 @@ def get_alarms_aci(method):
             index['faultSummary']['attributes']['status'],
             index['faultSummary']['attributes']['subject'],
             index['faultSummary']['attributes']['type']
+        ])
+    return result_list
+
+
+# get partitions controller APIC
+def get_data_partitions_controller():
+    #  https://sandboxapicdc.cisco.com/api/node/class/topology/pod-1/node-1/eqptStorage.json?
+    list_response = APIC_OBJECT.get_data_aci("class/topology/pod-1/node-1/eqptStorage.json?")
+    result_list = list()
+    for index in list_response:
+        result_list.append([
+            index['eqptStorage']['attributes']['available'],
+            index['eqptStorage']['attributes']['blocks'],
+            index['eqptStorage']['attributes']['capUtilized'],
+            index['eqptStorage']['attributes']['childAction'],
+            index['eqptStorage']['attributes']['device'],
+            index['eqptStorage']['attributes']['dn'],
+            index['eqptStorage']['attributes']['failReason'],
+            index['eqptStorage']['attributes']['fileSystem'],
+            index['eqptStorage']['attributes']['firmwareVersion'],
+            index['eqptStorage']['attributes']['lcOwn'],
+            index['eqptStorage']['attributes']['mediaWearout'],
+            index['eqptStorage']['attributes']['modTs'],
+            index['eqptStorage']['attributes']['model'],
+            index['eqptStorage']['attributes']['monPolDn'],
+            index['eqptStorage']['attributes']['mount'],
+            index['eqptStorage']['attributes']['name'],
+            index['eqptStorage']['attributes']['nameAlias'],
+            index['eqptStorage']['attributes']['operSt'],
+            index['eqptStorage']['attributes']['serial'],
+            index['eqptStorage']['attributes']['status'],
+            index['eqptStorage']['attributes']['used']
         ])
     return result_list
 
@@ -129,6 +161,7 @@ def get_status_interfaces(id_node):
     result_list = list()
     for index in list_response:
         result_list.append([
+            index['l1PhysIf']['attributes']['id'],
             index['l1PhysIf']['children'][0]['ethpmPhysIf']['attributes']['accessVlan'],
             index['l1PhysIf']['children'][0]['ethpmPhysIf']['attributes']['allowedVlans'],
             index['l1PhysIf']['children'][0]['ethpmPhysIf']['attributes']['backplaneMac'],

@@ -2,6 +2,7 @@
 
 CREATE table `aci_status_interfaces` (
     `unique` INT NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(20) DEFAULT NULL,
     `accessVlan` VARCHAR(20) DEFAULT NULL,
     `allowedVlans` VARCHAR(15) DEFAULT NULL,
     `backplaneMac` VARCHAR(255) DEFAULT NULL,
